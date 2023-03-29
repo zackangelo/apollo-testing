@@ -1,0 +1,40 @@
+schema {
+  query: Query
+}
+
+type Query {
+  peopleCount: Int!
+  person: Person!
+}
+
+interface Pet {
+  name: String!
+}
+
+type Dog implements Pet {
+  name: String!
+  dogBreed: DogBreed!
+}
+
+type Cat implements Pet {
+  name: String!
+  catBreed: CatBreed!
+}
+
+type Person {
+  firstName: String!
+  lastName: String!
+  age: Int
+  pets: [Pet!]!
+}
+
+enum DogBreed {
+  CHIHUAHUA
+  RETRIEVER
+  LAB
+}
+
+enum CatBreed {
+  TABBY
+  MIX
+}

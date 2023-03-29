@@ -1,0 +1,20 @@
+query {
+  peopleCount
+  person {
+    __typename
+    firstName
+    lastName
+    age
+    pets {
+      name
+      ... on Dog {
+        __typename
+        dogBreed
+      }
+
+      #   ... on Cat {
+      #     catBreed
+      #   }
+    }
+  }
+}
