@@ -1,20 +1,9 @@
 query {
-  peopleCount
-  person {
-    __typename
-    firstName
-    lastName
-    age
-    pets {
+  products {
+    items {
+      id
+      entityId
       name
-      ... on Dog {
-        __typename
-        dogBreed
-      }
-
-      #   ... on Cat {
-      #     catBreed
-      #   }
     }
   }
 }

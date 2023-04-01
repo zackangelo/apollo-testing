@@ -1,34 +1,51 @@
+use std::time::Instant;
+
 use apollo_compiler::{ApolloCompiler, HirDatabase};
 
 const SCHEMA: &str = include_str!("../schema.graphql");
 const QUERY: &str = include_str!("../query.graphql");
 
 fn main() {
-    has_errors();
-
-    // no_errors()
+    fast();
+    slow();
 }
 
-fn has_errors() {
+fn fast() {
     let mut compiler = ApolloCompiler::new();
     compiler.add_type_system(SCHEMA, "schema.graphql");
 
-    let type_system = compiler.db.type_system();
-    print_compiler_errors(compiler);
+    let file_id = compiler.add_executable(QUERY, "query.graphql");
 
-    let mut another_compiler = ApolloCompiler::new();
-    another_compiler.set_type_system_hir(type_system);
-    another_compiler.add_executable(QUERY, "query.graphql");
-
-    print_compiler_errors(another_compiler);
+    for _ in 0..10 {
+        compiler.update_executable(file_id, QUERY);
+        let start = Instant::now();
+        let _diags = compiler.validate();
+        println!(
+            "fast validation took {} us",
+            Instant::now().duration_since(start).as_micros()
+        )
+    }
 }
 
-fn no_errors() {
+fn slow() {
     let mut compiler = ApolloCompiler::new();
     compiler.add_type_system(SCHEMA, "schema.graphql");
-    compiler.add_executable(QUERY, "query.graphql");
+    let ts = compiler.db.type_system();
 
-    print_compiler_errors(compiler);
+    drop(compiler);
+
+    for _ in 0..10 {
+        let mut another_compiler = ApolloCompiler::new();
+        another_compiler.set_type_system_hir(ts.clone());
+        another_compiler.add_executable(QUERY, "query.graphql");
+
+        let start = Instant::now();
+        let _diags = another_compiler.validate();
+        println!(
+            "slow validation took {} us",
+            Instant::now().duration_since(start).as_micros()
+        )
+    }
 }
 
 fn print_compiler_errors(compiler: ApolloCompiler) {
